@@ -1,0 +1,33 @@
+{
+  "productId": "BOND-GB-2025-Y",
+  "name": "UK Government Bond Series Y",
+  "type": "government_bond",
+  "yield": "4.75%",
+  "maturity": "10 years",
+  "maturityDate": "2035-12-31",
+  "minInvestment": 100000,
+  "currency": "GBP",
+  "issuer": "UK Government - HM Treasury",
+  "creditRating": "AA",
+  "couponRate": "4.5%",
+  "couponFrequency": "Semi-annual",
+  "description": "UK Government Bond Series Y offers a competitive 4.75% yield with a 10-year maturity. Backed by the full faith and credit of the UK Government with an AA credit rating. This bond provides stable, predictable income through semi-annual coupon payments at 4.5%, making it an excellent choice for conservative investors seeking reliable returns. The current market environment shows increased demand for government securities as investors seek safe-haven assets amid economic uncertainty.",
+  "features": [
+    "AA credit rating from major rating agencies",
+    "Semi-annual coupon payments",
+    "Low default risk - government-backed",
+    "Liquid secondary market trading",
+    "Tax advantages for certain investors"
+  ],
+  "risks": [
+    "Interest rate risk - bond value may decrease if rates rise",
+    "Inflation risk - fixed payments may lose purchasing power",
+    "Currency risk for non-GBP investors"
+  ],
+  "targetInvestors": [
+    "Conservative investors seeking stable income",
+    "Portfolio diversification",
+    "Retirement planning",
+    "Capital preservation focus"
+  ]
+}
