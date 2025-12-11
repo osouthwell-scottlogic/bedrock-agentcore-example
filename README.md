@@ -13,6 +13,8 @@ Flow:
 2. User authenticates with Cognito, receives JWT token
 3. Browser calls AgentCore directly with JWT Bearer token
 4. AgentCore validates JWT and processes agent requests
+5. AgentCore invokes Lambda functions (MCP tools) for customer/product data
+6. Lambda functions read/write data from S3 bucket
 
 ## Quick Start
 
