@@ -1,0 +1,146 @@
+/* Vaporwave Color System - Pastel Edition */
+:root {
+  /* Primary Gradient Colors */
+  --vw-purple: #b967ff;
+  --vw-cyan: #01cdfe;
+  --vw-pink: #ff71ce;
+  
+  /* Accent Colors */
+  --vw-purple-light: #d4a5ff;
+  --vw-cyan-light: #7df9ff;
+  --vw-pink-light: #ffb3e6;
+  
+  /* UI Colors */
+  --vw-white: #ffffff;
+  --vw-white-glass: rgba(255, 255, 255, 0.95);
+  --vw-white-semi: rgba(255, 255, 255, 0.8);
+  --vw-white-transparent: rgba(255, 255, 255, 0.2);
+  --vw-black-glass: rgba(0, 0, 0, 0.1);
+  
+  /* Message Bubble Colors */
+  --vw-user-bg-start: #b967ff;
+  --vw-user-bg-end: #ff71ce;
+  --vw-agent-bg: rgba(255, 255, 255, 0.15);
+  
+  /* Code Block Colors */
+  --vw-code-user-bg: rgba(255, 255, 255, 0.25);
+  --vw-code-agent-bg: rgba(1, 205, 254, 0.1);
+  --vw-code-border: rgba(1, 205, 254, 0.3);
+  
+  /* Link Colors */
+  --vw-link: #01cdfe;
+  --vw-link-hover: #7df9ff;
+  
+  /* Shadow & Glow Effects */
+  --vw-glow-purple: rgba(185, 103, 255, 0.4);
+  --vw-glow-cyan: rgba(1, 205, 254, 0.4);
+  --vw-glow-pink: rgba(255, 113, 206, 0.4);
+  
+  /* Spacing */
+  --vw-spacing-xs: 4px;
+  --vw-spacing-sm: 8px;
+  --vw-spacing-md: 16px;
+  --vw-spacing-lg: 24px;
+  --vw-spacing-xl: 32px;
+  
+  /* Border Radius */
+  --vw-radius-sm: 8px;
+  --vw-radius-md: 12px;
+  --vw-radius-lg: 16px;
+  --vw-radius-xl: 24px;
+  
+  /* Transitions */
+  --vw-transition-fast: 150ms ease-in-out;
+  --vw-transition-normal: 300ms ease-in-out;
+  --vw-transition-slow: 500ms ease-in-out;
+}
+
+/* Gradients */
+.gradient-background {
+  background: linear-gradient(135deg, var(--vw-purple) 0%, var(--vw-cyan) 50%, var(--vw-pink) 100%);
+}
+
+.gradient-user-message {
+  background: linear-gradient(135deg, var(--vw-user-bg-start) 0%, var(--vw-user-bg-end) 100%);
+}
+
+.gradient-animated {
+  background: linear-gradient(135deg, var(--vw-purple) 0%, var(--vw-cyan) 50%, var(--vw-pink) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glow Effects */
+.glow-purple {
+  box-shadow: 0 0 20px var(--vw-glow-purple);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px var(--vw-glow-cyan);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px var(--vw-glow-pink);
+}
+
+.glow-soft {
+  box-shadow: 0 4px 24px var(--vw-glow-purple);
+}
+
+/* Glass Morphism */
+.glass {
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px var(--vw-black-glass);
+}
+
+.glass-strong {
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px var(--vw-black-glass);
+}
+
+/* Shimmer Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--vw-purple-light) 0%,
+    var(--vw-cyan-light) 50%,
+    var(--vw-pink-light) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Fade In Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s var(--vw-transition-normal) both;
+}

@@ -1,0 +1,29 @@
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--vw-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--vw-purple);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--vw-transition-fast);
+  opacity: 0.7;
+}
+
+.iconButton:hover:not(:disabled) {
+  opacity: 1;
+  background: var(--vw-white-transparent);
+  transform: scale(1.1);
+}
+
+.iconButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.iconButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

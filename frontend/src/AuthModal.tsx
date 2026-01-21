@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import Modal from '@cloudscape-design/components/modal';
-import Box from '@cloudscape-design/components/box';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import Button from '@cloudscape-design/components/button';
-import FormField from '@cloudscape-design/components/form-field';
-import Input from '@cloudscape-design/components/input';
-import Alert from '@cloudscape-design/components/alert';
+import { Modal } from './components/ui/Modal';
+import { Alert } from './components/ui/Alert';
+import { Button } from './components/ui/Button';
+import { Input } from './components/ui/Input';
+import { ErrorBanner, UiError } from './components/ErrorBanner';
 import { signUp, signIn, confirmSignUp } from './auth';
+import styles from './AuthModal.module.css';
 
 interface AuthModalProps {
   visible: boolean;
@@ -22,46 +21,58 @@ export default function AuthModal({ visible, onDismiss, onSuccess }: AuthModalPr
   const [password, setPassword] = useState('');
   const [confirmCode, setConfirmCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<UiError | null>(null);
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      setError({ message: 'Email and password are required' });
+      return;
+    }
     setLoading(true);
-    setError('');
+    setError(null);
     try {
       await signIn(email, password);
       onSuccess();
       resetForm();
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      setError({ message: err.message || 'Failed to sign in' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleSignUp = async () => {
+    if (!email || !password) {
+      setError({ message: 'Email and password are required' });
+      return;
+    }
     setLoading(true);
-    setError('');
+    setError(null);
     try {
       await signUp(email, password);
       setMode('confirm');
-      setError('');
+      setError(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to sign up');
+      setError({ message: err.message || 'Failed to sign up' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleConfirm = async () => {
+    if (!confirmCode) {
+      setError({ message: 'Verification code is required' });
+      return;
+    }
     setLoading(true);
-    setError('');
+    setError(null);
     try {
       await confirmSignUp(email, confirmCode);
       await signIn(email, password);
       onSuccess();
       resetForm();
     } catch (err: any) {
-      setError(err.message || 'Failed to confirm account');
+      setError({ message: err.message || 'Failed to confirm account' });
     } finally {
       setLoading(false);
     }
@@ -72,7 +83,7 @@ export default function AuthModal({ visible, onDismiss, onSuccess }: AuthModalPr
     setPassword('');
     setConfirmCode('');
     setMode('signin');
-    setError('');
+    setError(null);
   };
 
   const handleDismiss = () => {
@@ -86,80 +97,82 @@ export default function AuthModal({ visible, onDismiss, onSuccess }: AuthModalPr
       onDismiss={handleDismiss}
       header={mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Sign Up' : 'Confirm Account'}
       footer={
-        <Box float="right">
-          <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={handleDismiss}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={mode === 'signin' ? handleSignIn : mode === 'signup' ? handleSignUp : handleConfirm}
-              loading={loading}
-            >
-              {mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Sign Up' : 'Confirm'}
-            </Button>
-          </SpaceBetween>
-        </Box>
+        <div className={styles.footer}>
+          <Button variant="link" onClick={handleDismiss}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={mode === 'signin' ? handleSignIn : mode === 'signup' ? handleSignUp : handleConfirm}
+            disabled={loading}
+          >
+            {mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Sign Up' : 'Confirm'}
+          </Button>
+        </div>
       }
     >
-      <SpaceBetween size="m">
-        {error && (
-          <Alert type="error" dismissible onDismiss={() => setError('')}>
-            {error}
-          </Alert>
-        )}
+      <div className={styles.content}>
+        <ErrorBanner error={error} onDismiss={() => setError(null)} />
 
         {mode === 'confirm' ? (
           <>
             <Alert type="info">
               A verification code has been sent to {email}. Please enter it below.
             </Alert>
-            <FormField label="Verification Code">
+            <div className={styles.field}>
+              <label className={styles.label}>Verification Code</label>
               <Input
                 value={confirmCode}
-                onChange={({ detail }) => setConfirmCode(detail.value)}
+                onChange={setConfirmCode}
                 placeholder="Enter 6-digit code"
+                required
               />
-            </FormField>
+            </div>
           </>
         ) : (
           <>
-            <FormField label="Email">
+            <div className={styles.field}>
+              <label className={styles.label}>Email</label>
               <Input
                 value={email}
-                onChange={({ detail }) => setEmail(detail.value)}
+                onChange={setEmail}
                 type="email"
                 placeholder="your@email.com"
+                required
               />
-            </FormField>
+            </div>
 
-            <FormField label="Password">
+            <div className={styles.field}>
+              <label className={styles.label}>Password</label>
               <Input
                 value={password}
-                onChange={({ detail }) => setPassword(detail.value)}
+                onChange={setPassword}
                 type="password"
                 placeholder="Enter password"
+                required
               />
-            </FormField>
+            </div>
 
-            {mode === 'signin' ? (
-              <Box textAlign="center">
-                Don't have an account?{' '}
-                <Button variant="inline-link" onClick={() => setMode('signup')}>
-                  Sign up
-                </Button>
-              </Box>
-            ) : (
-              <Box textAlign="center">
-                Already have an account?{' '}
-                <Button variant="inline-link" onClick={() => setMode('signin')}>
-                  Sign in
-                </Button>
-              </Box>
-            )}
+            <div className={styles.switchMode}>
+              {mode === 'signin' ? (
+                <>
+                  Don't have an account?{' '}
+                  <Button variant="link" onClick={() => setMode('signup')}>
+                    Sign up
+                  </Button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <Button variant="link" onClick={() => setMode('signin')}>
+                    Sign in
+                  </Button>
+                </>
+              )}
+            </div>
           </>
         )}
-      </SpaceBetween>
+      </div>
     </Modal>
   );
 }

@@ -8,9 +8,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 
-export interface McpStackProps extends cdk.StackProps {
-  agentRuntimeRoleArn: string;
-}
+export interface McpStackProps extends cdk.StackProps {}
 
 export class McpStack extends cdk.Stack {
   public readonly listFilesFunction: lambda.Function;
@@ -29,7 +27,7 @@ export class McpStack extends cdk.Stack {
 
     // Create S3 bucket for client details JSON files
     this.clientDetailsBucket = new s3.Bucket(this, 'ClientDetailsBucket', {
-      bucketName: `mcp-client-details-${this.account}-${this.region}`,
+      bucketName: `agentcore-data-${this.account}-${this.region}`,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       versioned: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
@@ -82,23 +80,9 @@ export class McpStack extends cdk.Stack {
       },
     });
 
-    // Grant S3 read permissions to Lambda functions
-    this.clientDetailsBucket.grantRead(this.listFilesFunction);
-    this.clientDetailsBucket.grantRead(this.readFileFunction);
-
-    // Grant AgentCore runtime permission to invoke Lambda functions
-    const agentRuntimeRole = iam.Role.fromRoleArn(
-      this,
-      'AgentRuntimeRole',
-      props.agentRuntimeRoleArn
-    );
-
-    this.listFilesFunction.grantInvoke(agentRuntimeRole);
-    this.readFileFunction.grantInvoke(agentRuntimeRole);
-
-    // Grant AgentCore runtime S3 write permissions for sent-emails folder
-    this.clientDetailsBucket.grantPut(agentRuntimeRole, 'sent-emails/*');
-    this.clientDetailsBucket.grantRead(agentRuntimeRole, 'sent-emails/*');
+    // Grant S3 read permissions to Lambda functions (scoped to client-details prefix)
+    this.clientDetailsBucket.grantRead(this.listFilesFunction, 'client-details/*');
+    this.clientDetailsBucket.grantRead(this.readFileFunction, 'client-details/*');
 
     // Create Lambda functions for all tools
     // List Bonds
@@ -116,6 +100,7 @@ export class McpStack extends cdk.Stack {
       environment: {
         S3_DATA_BUCKET: this.clientDetailsBucket.bucketName,
         READ_FILE_FUNCTION_ARN: this.readFileFunction.functionArn,
+        LIST_FILES_FUNCTION_ARN: this.listFilesFunction.functionArn,
         LOG_LEVEL: 'INFO',
       },
     });
@@ -179,14 +164,15 @@ export class McpStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_13,
       handler: 'index.lambda_handler',
       code: lambda.Code.fromAsset('../lambda/search-market'),
-      timeout: cdk.Duration.seconds(5),
-      memorySize: 128,
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 256,
       tracing: lambda.Tracing.ACTIVE,
       logGroup: new logs.LogGroup(this, 'SearchMarketLogGroup', {
         retention: logs.RetentionDays.ONE_WEEK,
         removalPolicy: cdk.RemovalPolicy.DESTROY,
       }),
       environment: {
+        S3_DATA_BUCKET: this.clientDetailsBucket.bucketName,
         LOG_LEVEL: 'INFO',
       },
     });
@@ -233,18 +219,16 @@ export class McpStack extends cdk.Stack {
     this.readFileFunction.grantInvoke(this.getCustomerFunction);
     this.readFileFunction.grantInvoke(this.getProductFunction);
     
-    this.clientDetailsBucket.grantRead(this.listBondsFunction);
+    // Grant list-bonds permission to invoke list-files and read-file
+    this.listFilesFunction.grantInvoke(this.listBondsFunction);
+    this.readFileFunction.grantInvoke(this.listBondsFunction);
+    
+    this.clientDetailsBucket.grantRead(this.searchMarketFunction, 'client-details/market-data/*');
     this.clientDetailsBucket.grantWrite(this.sendEmailFunction, 'sent-emails/*');
     this.clientDetailsBucket.grantRead(this.getRecentEmailsFunction, 'sent-emails/*');
 
-    // Grant AgentCore runtime permission to invoke all Lambda functions
-    this.listBondsFunction.grantInvoke(agentRuntimeRole);
-    this.listCustomersFunction.grantInvoke(agentRuntimeRole);
-    this.getCustomerFunction.grantInvoke(agentRuntimeRole);
-    this.getProductFunction.grantInvoke(agentRuntimeRole);
-    this.searchMarketFunction.grantInvoke(agentRuntimeRole);
-    this.sendEmailFunction.grantInvoke(agentRuntimeRole);
-    this.getRecentEmailsFunction.grantInvoke(agentRuntimeRole);
+    // Note: Lambda functions are now invoked by Bedrock Agent action groups
+    // Permissions are granted in BedrockAgentStack
 
     // Outputs
     new cdk.CfnOutput(this, 'ClientDetailsBucketName', {

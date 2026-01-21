@@ -1,0 +1,45 @@
+{
+  "productId": "BOND-EM-2025-E",
+  "name": "Emerging Markets Government Bond Series E",
+  "type": "corporate_bond",
+  "yield": "6.75%",
+  "maturity": "8 years",
+  "maturityDate": "2033-12-31",
+  "minInvestment": 75000,
+  "currency": "GBP",
+  "issuer": "Emerging Markets Investment Fund",
+  "creditRating": "BBB-",
+  "couponRate": "6.50%",
+  "couponFrequency": "Annual",
+  "description": "Emerging Markets Government Bond Series E provides exposure to high-growth economies with a competitive 6.75% yield. Backed by stable emerging market sovereigns with BBB- ratings, this bond offers enhanced returns for investors seeking diversification beyond developed markets. Ideal for investors with higher risk tolerance looking for long-term capital appreciation and income generation from developing economies.",
+  "features": [
+    "BBB- investment-grade credit rating",
+    "Annual coupon payments at 6.50%",
+    "Exposure to high-growth emerging economies",
+    "Currency diversification benefits",
+    "Low correlation with developed markets"
+  ],
+  "risks": [
+    "Higher credit risk than developed market bonds",
+    "Currency fluctuation and exchange rate risk",
+    "Political and economic instability risks",
+    "Lower liquidity in secondary markets",
+    "Regulatory and policy change risks"
+  ],
+  "targetInvestors": [
+    "Growth-oriented investors with higher risk tolerance",
+    "Portfolio diversification with emerging markets",
+    "Long-term investors seeking enhanced yields",
+    "Sophisticated investors comfortable with EM exposure"
+  ],
+  "riskRating": 7,
+  "esgScore": 55,
+  "volatilityIndex": 48,
+  "sectorExposure": ["emerging markets", "sovereign", "government"],
+  "liquidityRating": 2,
+  "taxEfficiency": 70,
+  "defaultProbability": 1.5,
+  "demandScore": 65,
+  "sellabilityRank": 7,
+  "demandTrend": "Moderate demand from sophisticated investors seeking emerging market exposure"
+}

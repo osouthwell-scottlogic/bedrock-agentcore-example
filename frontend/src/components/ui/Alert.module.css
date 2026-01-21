@@ -1,0 +1,69 @@
+.alert {
+  padding: 16px;
+  border-radius: var(--vw-radius-md);
+  border: 2px solid;
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(10px);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error {
+  border-color: #dc2626;
+  background: rgba(254, 226, 226, 0.9);
+}
+
+.info {
+  border-color: var(--vw-cyan);
+  background: rgba(207, 250, 254, 0.9);
+}
+
+.success {
+  border-color: #16a34a;
+  background: rgba(220, 252, 231, 0.9);
+}
+
+.content {
+  flex: 1;
+}
+
+.header {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.body {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dismiss {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dismiss:hover {
+  opacity: 1;
+}

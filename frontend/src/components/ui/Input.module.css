@@ -1,0 +1,28 @@
+.input {
+  width: 100%;
+  padding: 18px 16px;
+  border-radius: var(--vw-radius-md);
+  border: 2px solid var(--vw-purple-light);
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(10px);
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
+  color: #000;
+  transition: var(--vw-transition-fast);
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.input:focus {
+  border-color: var(--vw-purple);
+  box-shadow: 0 0 0 3px rgba(185, 103, 255, 0.1);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

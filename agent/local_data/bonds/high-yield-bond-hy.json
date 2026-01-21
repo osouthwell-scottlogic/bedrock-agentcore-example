@@ -1,0 +1,45 @@
+{
+  "productId": "BOND-HIGH-YIELD-2025",
+  "name": "High-Yield Corporate Bond Fund Series HY",
+  "type": "corporate_bond",
+  "yield": "7.50%",
+  "maturity": "4 years",
+  "maturityDate": "2029-12-31",
+  "minInvestment": 40000,
+  "currency": "GBP",
+  "issuer": "Blue Chip Corporate Portfolio",
+  "creditRating": "BB+",
+  "couponRate": "7.25%",
+  "couponFrequency": "Quarterly",
+  "description": "High-Yield Corporate Bond Fund Series HY offers aggressive investors an exceptional 7.50% yield through a diversified portfolio of sub-investment grade corporate bonds. Rated BB+, these bonds provide enhanced returns for those willing to accept higher credit risk. Quarterly coupon payments at 7.25% provide regular income, while diversification across multiple issuers mitigates single-issuer risk.",
+  "features": [
+    "BB+ sub-investment grade rating with diversification",
+    "Quarterly coupon payments at 7.25%",
+    "Diversified across multiple corporate issuers",
+    "Lower minimum investment for high-yield exposure",
+    "Direct exposure to credit opportunities"
+  ],
+  "risks": [
+    "Sub-investment grade credit rating",
+    "Higher default probability than investment grade",
+    "Significant interest rate sensitivity",
+    "Pro-cyclical performance during economic stress",
+    "Lower liquidity for individual bonds"
+  ],
+  "targetInvestors": [
+    "Aggressive income-seeking investors",
+    "High risk tolerance profiles",
+    "Experienced credit analysts",
+    "Portfolio yield enhancement specialists"
+  ],
+  "riskRating": 8,
+  "esgScore": 48,
+  "volatilityIndex": 55,
+  "sectorExposure": ["corporate", "diversified"],
+  "liquidityRating": 2,
+  "taxEfficiency": 65,
+  "defaultProbability": 2.5,
+  "demandScore": 70,
+  "sellabilityRank": 6,
+  "demandTrend": "Selective demand from aggressive income seekers in strong economic periods"
+}

@@ -1,0 +1,44 @@
+{
+  "productId": "BOND-CORP-2025-A",
+  "name": "Premium Corporate Bond Series A",
+  "type": "corporate_bond",
+  "yield": "5.25%",
+  "maturity": "5 years",
+  "maturityDate": "2030-12-31",
+  "minInvestment": 50000,
+  "currency": "GBP",
+  "issuer": "British Telecommunications PLC",
+  "creditRating": "BBB+",
+  "couponRate": "5.0%",
+  "couponFrequency": "Quarterly",
+  "description": "Premium Corporate Bond Series A from British Telecommunications offers an attractive 5.25% yield with a 5-year maturity. Rated BBB+ by major credit agencies, this bond provides higher returns than government bonds while maintaining investment-grade quality. Quarterly coupon payments at 5.0% provide regular income streams. Ideal for investors seeking enhanced yields with moderate risk from a well-established UK telecommunications leader.",
+  "features": [
+    "BBB+ investment-grade credit rating",
+    "Quarterly coupon payments for regular income",
+    "Lower minimum investment at £50,000",
+    "Established issuer with strong market position",
+    "Senior unsecured bond with priority in capital structure"
+  ],
+  "risks": [
+    "Higher credit risk than government bonds",
+    "Interest rate sensitivity - value may fluctuate",
+    "Corporate performance risk tied to issuer health",
+    "Less liquid than government securities"
+  ],
+  "targetInvestors": [
+    "Income-focused investors seeking higher yields",
+    "Moderate risk tolerance profiles",
+    "Portfolio diversification from government bonds",
+    "Investors comfortable with corporate credit risk"
+  ],
+  "riskRating": 5,
+  "esgScore": 62,
+  "volatilityIndex": 35,
+  "sectorExposure": ["telecommunications", "corporate"],
+  "liquidityRating": 3,
+  "taxEfficiency": 75,
+  "defaultProbability": 0.8,
+  "demandScore": 92,
+  "sellabilityRank": 1,
+  "demandTrend": "Highest demand - attractive yield with investment-grade quality and lower minimum investment"
+}

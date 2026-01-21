@@ -1,0 +1,44 @@
+{
+  "productId": "BOND-GREEN-2025-G",
+  "name": "UK Green Energy Bond Series G",
+  "type": "green_bond",
+  "yield": "4.50%",
+  "maturity": "7 years",
+  "maturityDate": "2032-12-31",
+  "minInvestment": 100000,
+  "currency": "GBP",
+  "issuer": "UK Infrastructure Bank",
+  "creditRating": "AA",
+  "couponRate": "4.25%",
+  "couponFrequency": "Semi-annual",
+  "description": "UK Green Energy Bond Series G exclusively funds renewable energy projects including offshore wind farms, solar installations, and grid modernization. Certified under the Green Bond Principles, this AA-rated bond offers 4.50% yield with full transparency on environmental impact. Investors receive semi-annual coupon payments while supporting the UK's net-zero transition. Ideal for ESG-focused portfolios seeking competitive returns with measurable climate impact.",
+  "features": [
+    "AA credit rating backed by UK Infrastructure Bank",
+    "Certified Green Bond with verified environmental impact",
+    "Funds renewable energy and climate projects",
+    "Regular impact reporting and transparency",
+    "Competitive yield for sustainable investment"
+  ],
+  "risks": [
+    "Project-specific risks in renewable energy sector",
+    "Regulatory and policy changes affecting green energy",
+    "Interest rate risk over 7-year maturity",
+    "Green bond premium may affect market pricing"
+  ],
+  "targetInvestors": [
+    "ESG and impact-focused investors",
+    "Institutions with sustainability mandates",
+    "Conservative investors wanting environmental alignment",
+    "Portfolio diversification with green assets"
+  ],
+  "riskRating": 3,
+  "esgScore": 92,
+  "volatilityIndex": 22,
+  "sectorExposure": ["renewable energy", "infrastructure", "government"],
+  "liquidityRating": 4,
+  "taxEfficiency": 88,
+  "defaultProbability": 0.3,
+  "demandScore": 85,
+  "sellabilityRank": 3,
+  "demandTrend": "Growing demand from ESG-focused investors and institutions"
+}

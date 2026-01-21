@@ -1,0 +1,138 @@
+// Bedrock Agents streaming helper
+// Handles event-stream format from Bedrock Agents InvokeAgent API
+
+export interface BedrockAgentChunk {
+  chunk?: {
+    bytes?: string; // base64-encoded
+  };
+  trace?: any;
+  returnControl?: any;
+  files?: any;
+}
+
+export interface BedrockAgentStreamResponse {
+  fullResponse: string;
+  requestId?: string;
+}
+
+/**
+ * Parse Bedrock Agents event stream and invoke callback for each text chunk
+ */
+export const parseBedrockAgentStream = async (
+  response: Response,
+  onChunk: (text: string) => void
+): Promise<BedrockAgentStreamResponse> => {
+  if (!response.body) {
+    throw new Error('Response body is null');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullResponse = '';
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+
+      // Parse event-stream format: each event is separated by double newlines
+      // Format: `:event-type <type>\n:content-type <type>\n:message-type <type>\ndata: <json>\n\n`
+      const events = buffer.split('\n\n');
+      buffer = events.pop() || ''; // Keep incomplete event in buffer
+
+      for (const event of events) {
+        if (!event.trim()) continue;
+
+        const lines = event.split('\n');
+        let eventType = '';
+        let messageType = '';
+        let dataLine = '';
+
+        for (const line of lines) {
+          if (line.startsWith(':event-type ')) {
+            eventType = line.slice(12).trim();
+          } else if (line.startsWith(':message-type ')) {
+            messageType = line.slice(14).trim();
+          } else if (line.startsWith('data: ')) {
+            dataLine = line.slice(6);
+          }
+        }
+
+        // Only process chunk events
+        if (eventType === 'chunk' && messageType === 'chunk' && dataLine) {
+          try {
+            const parsed = JSON.parse(dataLine) as BedrockAgentChunk;
+            
+            // Extract text from chunk bytes (base64-encoded)
+            if (parsed.chunk?.bytes) {
+              const text = atob(parsed.chunk.bytes);
+              fullResponse += text;
+              onChunk(text);
+            }
+          } catch (e) {
+            console.warn('Failed to parse Bedrock event:', e, dataLine);
+          }
+        }
+      }
+    }
+
+    return { fullResponse };
+  } finally {
+    reader.releaseLock();
+  }
+};
+
+/**
+ * Invoke Bedrock Agent with streaming support
+ */
+export const invokeBedrockAgent = async (
+  agentId: string,
+  agentAliasId: string,
+  sessionId: string,
+  prompt: string,
+  region: string,
+  jwtToken: string,
+  onChunk?: (text: string) => void
+): Promise<{ response: string; requestId?: string }> => {
+  const url = `https://bedrock-agent-runtime.${region}.amazonaws.com/agents/${agentId}/agentAliases/${agentAliasId}/sessions/${sessionId}/text`;
+
+  console.log('Invoking Bedrock Agent:', { agentId, agentAliasId, sessionId, region });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwtToken}`,
+      'X-Amzn-Trace-Id': `trace-${Date.now()}`,
+    },
+    body: JSON.stringify({
+      inputText: prompt,
+      enableTrace: false,
+      endSession: false,
+    }),
+  });
+
+  const requestId = response.headers.get('x-amzn-requestid') || undefined;
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Bedrock Agent error:', errorText);
+    throw new Error(`Bedrock Agent request failed: ${response.status} ${errorText}`);
+  }
+
+  if (onChunk && response.body) {
+    const { fullResponse } = await parseBedrockAgentStream(response, onChunk);
+    return { response: fullResponse, requestId };
+  }
+
+  // Non-streaming fallback (shouldn't happen with Bedrock Agents)
+  const text = await response.text();
+  return { response: text, requestId };
+};

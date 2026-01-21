@@ -1,0 +1,15 @@
+.wrapper {
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(10px);
+  border-radius: var(--vw-radius-lg);
+  padding: var(--vw-radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wrapper textarea {
+  flex: 1;
+  min-height: 40px;
+  max-height: 120px;
+}

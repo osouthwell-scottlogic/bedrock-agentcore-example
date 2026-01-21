@@ -1,0 +1,44 @@
+{
+  "productId": "BOND-CORP-2025-B",
+  "name": "Utility Sector Corporate Bond Series B",
+  "type": "corporate_bond",
+  "yield": "4.85%",
+  "maturity": "6 years",
+  "maturityDate": "2031-12-31",
+  "minInvestment": 60000,
+  "currency": "GBP",
+  "issuer": "National Grid PLC",
+  "creditRating": "A",
+  "couponRate": "4.60%",
+  "couponFrequency": "Semi-annual",
+  "description": "Utility Sector Corporate Bond Series B from National Grid PLC offers a steady 4.85% yield with A-rated credit quality. This bond funds essential infrastructure for electricity and gas distribution across the UK. Backed by stable, regulated utility operations with predictable cash flows, this bond provides an attractive yield enhancement over government bonds with lower risk than standard corporate debt.",
+  "features": [
+    "A-rated investment-grade credit quality",
+    "Semi-annual coupon payments at 4.60%",
+    "Backed by regulated utility monopoly",
+    "Stable, predictable cash flows from essential services",
+    "Mid-range minimum investment requirement"
+  ],
+  "risks": [
+    "Regulatory changes affecting utility pricing",
+    "Interest rate sensitivity",
+    "Energy transition risks to traditional utilities",
+    "Moderate default risk relative to sovereigns"
+  ],
+  "targetInvestors": [
+    "Income-focused investors seeking stability",
+    "Conservative to moderate risk profiles",
+    "Infrastructure and utility sector believers",
+    "Portfolio diversification from pure government bonds"
+  ],
+  "riskRating": 4,
+  "esgScore": 72,
+  "volatilityIndex": 24,
+  "sectorExposure": ["utilities", "infrastructure", "corporate"],
+  "liquidityRating": 3,
+  "taxEfficiency": 78,
+  "defaultProbability": 0.5,
+  "demandScore": 82,
+  "sellabilityRank": 4,
+  "demandTrend": "Strong demand from conservative investors seeking stable utility sector exposure"
+}

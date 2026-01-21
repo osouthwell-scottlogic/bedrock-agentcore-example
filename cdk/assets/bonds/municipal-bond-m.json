@@ -1,0 +1,44 @@
+{
+  "productId": "BOND-MUNI-2025-M",
+  "name": "London Infrastructure Bond Series M",
+  "type": "municipal_bond",
+  "yield": "4.10%",
+  "maturity": "15 years",
+  "maturityDate": "2040-12-31",
+  "minInvestment": 75000,
+  "currency": "GBP",
+  "issuer": "Greater London Authority",
+  "creditRating": "AA-",
+  "couponRate": "3.85%",
+  "couponFrequency": "Semi-annual",
+  "description": "London Infrastructure Bond Series M finances critical transport and housing projects across Greater London. With an AA- credit rating and 4.10% yield over 15 years, this municipal bond offers tax advantages for UK residents alongside stable returns. Backed by the Greater London Authority's revenue streams and central government support, this bond provides long-term security with moderate yield enhancement over gilts.",
+  "features": [
+    "AA- credit rating with government backing",
+    "Tax-advantaged returns for UK residents",
+    "Funds essential London infrastructure projects",
+    "Long-term 15-year investment horizon",
+    "Semi-annual coupon payments"
+  ],
+  "risks": [
+    "Long duration increases interest rate sensitivity",
+    "London-specific economic exposure",
+    "Political and policy change risks",
+    "Lower liquidity than national government bonds"
+  ],
+  "targetInvestors": [
+    "Long-term investors seeking stable income",
+    "UK taxpayers benefiting from tax advantages",
+    "Socially conscious investors in infrastructure",
+    "Conservative investors wanting government-backed returns"
+  ],
+  "riskRating": 3,
+  "esgScore": 75,
+  "volatilityIndex": 28,
+  "sectorExposure": ["infrastructure", "public sector", "government"],
+  "liquidityRating": 2,
+  "taxEfficiency": 90,
+  "defaultProbability": 0.2,
+  "demandScore": 72,
+  "sellabilityRank": 8,
+  "demandTrend": "Steady demand from tax-conscious UK investors seeking infrastructure exposure"
+}

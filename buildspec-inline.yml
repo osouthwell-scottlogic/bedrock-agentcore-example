@@ -1,0 +1,18 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo "Listing root" && pwd && ls -la
+      - echo "Tree" && find . -maxdepth 2
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+  build:
+    commands:
+      - echo Building Docker image...
+      - pwd && ls -la
+      - docker build --platform linux/arm64 -f agent/Dockerfile -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+  post_build:
+    commands:
+      - echo Pushing Docker image...
+      - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+      - echo Build completed successfully

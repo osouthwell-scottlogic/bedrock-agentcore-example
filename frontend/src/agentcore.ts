@@ -1,46 +1,80 @@
-// Note: Using direct HTTP calls to AgentCore with JWT bearer tokens
-// as shown in AWS AgentCore documentation
+﻿// AgentCore Runtime API client with JWT bearer token authentication
+import { HttpError } from './lib/fetchJson';
+import { invokeAgentCoreRuntime } from './lib/agentCoreClient';
 
 const region = (import.meta as any).env.VITE_REGION || 'us-east-1';
-const agentRuntimeArn = (import.meta as any).env.VITE_AGENT_RUNTIME_ARN;
 const isLocalDev = (import.meta as any).env.VITE_LOCAL_DEV === 'true';
 const localAgentUrl = (import.meta as any).env.VITE_AGENT_RUNTIME_URL || '/api';
+const apiGatewayUrl = (import.meta as any).env.VITE_API_GATEWAY_URL;
+
+const headerVariants = ['x-amzn-requestid', 'x-request-id', 'x-amzn-request-id'];
+
+const getRequestId = (headers: Headers): string | undefined => {
+  for (const key of headerVariants) {
+    const value = headers.get(key);
+    if (value) return value;
+  }
+  return undefined;
+};
+
+const throwHttpErrorFromResponse = async (response: Response): Promise<never> => {
+  const headersObj = Object.fromEntries(response.headers.entries());
+  const requestId = getRequestId(response.headers);
+  let parsed: any | undefined;
+  try {
+    parsed = await response.json();
+  } catch {
+    parsed = undefined;
+  }
+  const errorCode = parsed?.errorCode || parsed?.code;
+  const message = parsed?.message || parsed?.error || response.statusText || 'Request failed';
+  const details = parsed?.details || parsed;
+  throw new HttpError({
+    message,
+    status: response.status,
+    errorCode,
+    requestId,
+    details,
+    headers: headersObj,
+  });
+};
+
+export interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 export interface InvokeAgentRequest {
   prompt: string;
+  conversationHistory?: ConversationMessage[];
   onChunk?: (chunk: string) => void;
 }
 
 export interface InvokeAgentResponse {
   response: string;
+  requestId?: string;
 }
 
 export const invokeAgent = async (request: InvokeAgentRequest): Promise<InvokeAgentResponse> => {
   try {
-    // Local development mode - call local AgentCore instance
+    // Local development mode - call local Python agent
     if (isLocalDev) {
-      console.log('Invoking local AgentCore:', { url: localAgentUrl });
-      console.log('Request payload:', { prompt: request.prompt });
-
+      console.log('Local dev mode - using local agent:', { url: localAgentUrl });
+      
       const response = await fetch(`${localAgentUrl}/invocations`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: request.prompt
+          prompt: request.prompt,
+          conversationHistory: request.conversationHistory || []
         }),
       });
 
-      console.log('Local AgentCore response status:', response.status);
-
+      const requestId = getRequestId(response.headers);
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Local AgentCore error response:', errorText);
-        throw new Error(`Local AgentCore invocation failed: ${response.status} ${response.statusText} - ${errorText}`);
+        await throwHttpErrorFromResponse(response);
       }
 
-      // Check if streaming callback is provided
       if (request.onChunk && response.body) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -50,197 +84,60 @@ export const invokeAgent = async (request: InvokeAgentRequest): Promise<InvokeAg
         try {
           while (true) {
             const { done, value } = await reader.read();
-
-            if (done) {
-              break;
-            }
+            if (done) break;
 
             const chunk = decoder.decode(value, { stream: true });
             buffer += chunk;
-
-            // Process complete SSE messages in the buffer
             const lines = buffer.split('\n');
-            // Keep the last incomplete line in the buffer
             buffer = lines.pop() || '';
 
             for (const line of lines) {
               if (line.startsWith('data: ')) {
-                const data = line.slice(6); // Remove 'data: ' prefix
-
-                // Try to parse as JSON string
+                const data = line.slice(6);
                 try {
                   const parsed = JSON.parse(data);
                   fullResponse += parsed;
-                  // Call the chunk callback with parsed content
                   request.onChunk(parsed);
                 } catch {
-                  // If not JSON, use the raw data
                   fullResponse += data;
                   request.onChunk(data);
                 }
               }
             }
           }
-
-          console.log('Streaming completed. Full response:', fullResponse);
-          return { response: fullResponse };
+          return { response: fullResponse, requestId };
         } finally {
           reader.releaseLock();
         }
       }
 
-      // Non-streaming mode (backward compatibility)
-      let data;
-      try {
-        data = await response.json();
-        console.log('Local AgentCore response data:', data);
-      } catch (parseError) {
-        console.error('Failed to parse JSON response:', parseError);
-        const textResponse = await response.text();
-        console.log('Raw response text:', textResponse);
-        throw new Error(`Invalid JSON response from local AgentCore: ${textResponse}`);
-      }
-
-      // Handle different response formats from AgentCore
-      let responseText = '';
-      if (typeof data === 'string') {
-        responseText = data;
-      } else if (data && typeof data === 'object') {
-        responseText = data.response || data.content || data.text || data.message || data.output || JSON.stringify(data);
-      } else {
-        responseText = 'No response from agent';
-      }
-
-      console.log('Final response text:', responseText);
-
-      return {
-        response: responseText
-      };
+      const text = await response.text();
+      return { response: text, requestId };
     }
 
-    // Production mode - call AWS AgentCore
-    // Check if runtime ARN is available
-    if (!agentRuntimeArn) {
-      throw new Error('AgentCore Runtime ARN not configured. Please check deployment.');
+    // Production mode - call AgentCore via API Gateway
+    if (!apiGatewayUrl) {
+      throw new Error('API Gateway URL must be configured. Check deployment outputs.');
     }
 
-    // Get JWT access token from Cognito (required for AgentCore as per AWS documentation)
     const { getAccessToken } = await import('./auth');
     const jwtToken = await getAccessToken();
     if (!jwtToken) {
       throw new Error('Not authenticated - no access token available');
     }
 
-    // URL encode the agent runtime ARN for the API call (as per AWS documentation)
-    const encodedAgentRuntimeArn = encodeURIComponent(agentRuntimeArn);
-
-    // Use the correct AgentCore endpoint format from AWS documentation
-    const url = `https://bedrock-agentcore.${region}.amazonaws.com/runtimes/${encodedAgentRuntimeArn}/invocations?qualifier=DEFAULT`;
-
-    console.log('Invoking AgentCore directly:', { url, agentRuntimeArn, region });
-    console.log('Request payload:', { prompt: request.prompt });
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwtToken}`,
-        'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': `testsession${Date.now()}${Math.random().toString(36).substring(2, 15)}`,
-        'X-Amzn-Trace-Id': `trace-${Date.now()}`,
-      },
-      body: JSON.stringify({
-        prompt: request.prompt
-      }),
-    });
-
-    console.log('AgentCore response status:', response.status);
-    console.log('AgentCore response headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AgentCore error response:', errorText);
-      throw new Error(`AgentCore invocation failed: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-
-    // Check if streaming callback is provided
-    if (request.onChunk && response.body) {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = '';
-      let buffer = '';
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
-          }
-
-          const chunk = decoder.decode(value, { stream: true });
-          buffer += chunk;
-
-          // Process complete SSE messages in the buffer
-          const lines = buffer.split('\n');
-          // Keep the last incomplete line in the buffer
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6); // Remove 'data: ' prefix
-
-              // Try to parse as JSON string
-              try {
-                const parsed = JSON.parse(data);
-                fullResponse += parsed;
-                // Call the chunk callback with parsed content
-                request.onChunk(parsed);
-              } catch {
-                // If not JSON, use the raw data
-                fullResponse += data;
-                request.onChunk(data);
-              }
-            }
-          }
-        }
-
-        console.log('Streaming completed. Full response:', fullResponse);
-        return { response: fullResponse };
-      } finally {
-        reader.releaseLock();
-      }
-    }
-
-    // Non-streaming mode (backward compatibility)
-    let data;
-    try {
-      data = await response.json();
-      console.log('AgentCore response data:', data);
-    } catch (parseError) {
-      console.error('Failed to parse JSON response:', parseError);
-      const textResponse = await response.text();
-      console.log('Raw response text:', textResponse);
-      throw new Error(`Invalid JSON response from AgentCore: ${textResponse}`);
-    }
-
-    // Handle different response formats from AgentCore
-    let responseText = '';
-    if (typeof data === 'string') {
-      responseText = data;
-    } else if (data && typeof data === 'object') {
-      responseText = data.response || data.content || data.text || data.message || data.output || JSON.stringify(data);
-    } else {
-      responseText = 'No response from agent';
-    }
-
-    console.log('Final response text:', responseText);
-
-    return {
-      response: responseText
-    };
+    console.log('Invoking AgentCore via API Gateway:', { apiGatewayUrl });
+    
+    return await invokeAgentCoreRuntime(
+      apiGatewayUrl,
+      request.prompt,
+      request.conversationHistory || [],
+      jwtToken,
+      request.onChunk
+    );
 
   } catch (error: any) {
-    console.error('AgentCore invocation error:', error);
-    throw new Error(`Failed to invoke agent: ${error.message}`);
+    console.error('Agent invocation error:', error);
+    throw error instanceof HttpError ? error : new Error(`Failed to invoke agent: ${error.message}`);
   }
 };

@@ -1,0 +1,59 @@
+.button {
+  padding: 8px 16px;
+  border-radius: var(--vw-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--vw-transition-fast);
+  border: none;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--vw-purple) 0%, var(--vw-pink) 100%);
+  color: white;
+  box-shadow: 0 2px 8px var(--vw-glow-purple);
+}
+
+.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--vw-glow-purple);
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.secondary {
+  background: var(--vw-white-glass);
+  color: var(--vw-purple);
+  border: 2px solid var(--vw-purple-light);
+  backdrop-filter: blur(10px);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--vw-white-semi);
+  border-color: var(--vw-purple);
+  transform: translateY(-1px);
+}
+
+.link {
+  background: transparent;
+  color: var(--vw-cyan);
+  padding: 4px 8px;
+  text-decoration: none;
+}
+
+.link:hover:not(:disabled) {
+  color: var(--vw-cyan-light);
+  text-decoration: underline;
+}

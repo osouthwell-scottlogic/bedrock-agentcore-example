@@ -9,6 +9,9 @@ param(
     [string]$AgentRuntimeArn,
     
     [Parameter(Mandatory=$true)]
+    [string]$ApiGatewayUrl,
+    
+    [Parameter(Mandatory=$true)]
     [string]$Region
 )
 
@@ -16,6 +19,7 @@ Write-Host "Building frontend with:"
 Write-Host "  User Pool ID: $UserPoolId"
 Write-Host "  User Pool Client ID: $UserPoolClientId"
 Write-Host "  Agent Runtime ARN: $AgentRuntimeArn"
+Write-Host "  API Gateway URL: $ApiGatewayUrl"
 Write-Host "  Region: $Region"
 
 # Create production environment file (overrides .env.local)
@@ -32,6 +36,7 @@ if (Test-Path ".env.local") {
 VITE_USER_POOL_ID=$UserPoolId
 VITE_USER_POOL_CLIENT_ID=$UserPoolClientId
 VITE_AGENT_RUNTIME_ARN=$AgentRuntimeArn
+VITE_API_GATEWAY_URL=$ApiGatewayUrl
 VITE_REGION=$Region
 VITE_LOCAL_DEV=false
 "@ | Out-File -FilePath ".env.production.local" -Encoding UTF8

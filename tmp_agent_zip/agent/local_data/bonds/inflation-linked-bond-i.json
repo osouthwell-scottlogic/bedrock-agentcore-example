@@ -1,0 +1,44 @@
+{
+  "productId": "BOND-INFLATION-2025-I",
+  "name": "UK Index-Linked Gilts Series I",
+  "type": "government_bond",
+  "yield": "2.25%",
+  "maturity": "20 years",
+  "maturityDate": "2045-12-31",
+  "minInvestment": 100000,
+  "currency": "GBP",
+  "issuer": "UK Government - HM Treasury",
+  "creditRating": "AA",
+  "couponRate": "2.00%",
+  "couponFrequency": "Semi-annual",
+  "description": "UK Index-Linked Gilts Series I provides inflation protection for long-term investors with principal and coupon payments adjusted for UK inflation (RPI). With a 2.25% real yield backed by the UK Government's AA rating, this gilt ensures purchasing power preservation over two decades. Ideal for retirement planning and protecting against inflation erosion in fixed-income portfolios.",
+  "features": [
+    "Government-backed inflation protection",
+    "Real yield of 2.25% above inflation",
+    "Principal and coupon linked to RPI",
+    "AA-rated sovereign credit quality",
+    "Long-term purchasing power preservation"
+  ],
+  "risks": [
+    "Deflation risk - yields fall if prices decline",
+    "Very long duration of 20 years",
+    "Interest rate risk particularly high",
+    "Inflation expectation volatility"
+  ],
+  "targetInvestors": [
+    "Long-term investors concerned about inflation",
+    "Retirement planning portfolios",
+    "Pension funds with inflation-linked liabilities",
+    "Conservative investors seeking real returns"
+  ],
+  "riskRating": 2,
+  "esgScore": 50,
+  "volatilityIndex": 35,
+  "sectorExposure": ["government", "inflation-linked"],
+  "liquidityRating": 4,
+  "taxEfficiency": 80,
+  "defaultProbability": 0.1,
+  "demandScore": 78,
+  "sellabilityRank": 5,
+  "demandTrend": "Strong demand from pension funds and long-term investors concerned about inflation"
+}

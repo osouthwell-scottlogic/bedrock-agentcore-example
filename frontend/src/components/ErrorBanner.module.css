@@ -1,0 +1,45 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.meta {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.details {
+  margin-top: 8px;
+}
+
+.summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--vw-purple);
+  font-weight: 500;
+  user-select: none;
+}
+
+.summary:hover {
+  text-decoration: underline;
+}
+
+.pre {
+  margin: 8px 0 0 0;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--vw-radius-sm);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}

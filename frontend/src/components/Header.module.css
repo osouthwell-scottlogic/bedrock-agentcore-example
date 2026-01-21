@@ -1,0 +1,43 @@
+.header {
+  background: linear-gradient(135deg, var(--vw-purple) 0%, var(--vw-cyan) 50%, var(--vw-pink) 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.container {
+  max-width: 100%;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logo {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  color: #ffffff;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  padding: 6px 12px;
+  background: var(--vw-white-glass);
+  backdrop-filter: blur(10px);
+  border-radius: var(--vw-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vw-purple);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

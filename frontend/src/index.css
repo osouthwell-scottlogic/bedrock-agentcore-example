@@ -4,11 +4,107 @@
   padding: 0;
 }
 
+:root {
+  /* Colors */
+  --color-primary: #01cdfe;
+  --color-dark: #2c3e50;
+  --color-purple: #b967ff;
+  --color-pink: #ff71ce;
+  --color-cyan: #01cdfe;
+  --color-text-dark: #2c3e50;
+  --color-text-light: #cccccc;
+  --color-text-muted: #999999;
+  --color-background: #ffffff;
+  --color-background-hover: #f0f0f0;
+  --color-border: #e0e0e0;
+  --color-border-hover: #01cdfe;
+  --color-success: #01cdfe;
+  --color-white-glass: rgba(255, 255, 255, 0.95);
+  --color-white-semi: rgba(255, 255, 255, 0.9);
+  --color-white-light: rgba(255, 255, 255, 0.25);
+  --color-code-user-bg: rgba(255, 255, 255, 0.25);
+  --color-code-agent-bg: rgba(1, 205, 254, 0.1);
+  --color-code-agent-border: rgba(1, 205, 254, 0.3);
+
+  /* Spacing */
+  --spacing-xs: 2px;
+  --spacing-s: 6px;
+  --spacing-m: 10px;
+  --spacing-l: 20px;
+  --spacing-xl: 26px;
+  --spacing-xxl: 38px;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 4px 16px rgba(185, 103, 255, 0.4);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Glass Effects */
+  --glass-solid-opacity: 0.95;
+  --glass-solid-blur: 10px;
+  --glass-semi-opacity: 0.9;
+  --glass-semi-blur: 20px;
+  --glass-light-opacity: 0.8;
+  --glass-light-blur: 30px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-out;
+
+  /* Z-Index */
+  --z-index-base: 1;
+  --z-index-content: 10;
+  --z-index-overlay: 100;
+  --z-index-modal: 1000;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f5f5f5;
+  background: #1a1a2e;
+  background-attachment: fixed;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

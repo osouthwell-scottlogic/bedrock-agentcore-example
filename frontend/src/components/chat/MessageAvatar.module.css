@@ -1,0 +1,27 @@
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform var(--vw-transition-fast);
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.user {
+  background: linear-gradient(135deg, var(--vw-purple) 0%, var(--vw-pink) 100%);
+  color: white;
+  box-shadow: 0 2px 8px var(--vw-glow-purple);
+}
+
+.agent {
+  background: var(--vw-white-glass);
+  border: 2px solid var(--vw-cyan);
+  color: var(--vw-cyan);
+  backdrop-filter: blur(10px);
+}
