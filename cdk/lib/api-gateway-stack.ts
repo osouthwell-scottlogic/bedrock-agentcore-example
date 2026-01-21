@@ -97,7 +97,7 @@ def handler(event, context):
           # Return as text/event-stream for frontend streaming
           # Split response into chunks and format as SSE
           chunks = [full_response[i:i+50] for i in range(0, len(full_response), 50)]
-          sse_data = '\\n'.join([f'data: {json.dumps(chunk)}' for chunk in chunks])
+          sse_data = '\n'.join([f'data: {json.dumps(chunk)}' for chunk in chunks])
           
           return {
             'statusCode': 200,
