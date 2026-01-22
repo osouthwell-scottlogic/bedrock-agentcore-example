@@ -94,10 +94,23 @@ def handler(event, context):
           print(f"AgentCore response length: {len(full_response)}")
           print(f"AgentCore response (first 500 chars): {full_response[:500]}")
 
+          # Normalize Bedrock event-stream into plain text
+          texts = []
+          for line in full_response.splitlines():
+            if line.startswith('data: '):
+              raw = line[6:]
+              try:
+                texts.append(json.loads(raw))  # lines may already be JSON strings
+              except Exception:
+                texts.append(raw)
+
+          plain_text = ''.join(texts)
+
           # Return as text/event-stream for frontend streaming
-          # Split response into chunks and format as SSE
-          chunks = [full_response[i:i+50] for i in range(0, len(full_response), 50)]
-          sse_data = '\n'.join([f'data: {json.dumps(chunk)}' for chunk in chunks])
+          # Split plain text into modest chunks and format as SSE (double-newline between events)
+          chunks = [plain_text[i:i+200] for i in range(0, len(plain_text), 200)] or ['']
+          events = [f"data: {json.dumps(chunk)}" for chunk in chunks]
+          sse_data = "\\n\\n".join(events) + "\\n\\n"
           
           return {
             'statusCode': 200,

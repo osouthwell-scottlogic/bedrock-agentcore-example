@@ -11,6 +11,7 @@ AWS_REGION = os.environ.get('AWS_REGION', os.environ.get('AWS_DEFAULT_REGION', '
 lambda_client = boto3.client('lambda', region_name=AWS_REGION)
 
 GET_CUSTOMER_ARN = os.environ.get('GET_CUSTOMER_FUNCTION_ARN', '')
+LIST_CUSTOMERS_ARN = os.environ.get('LIST_CUSTOMERS_FUNCTION_ARN', '')
 LIST_BONDS_ARN = os.environ.get('LIST_BONDS_FUNCTION_ARN', '')
 
 
@@ -136,15 +137,9 @@ def get_most_sellable_bond_with_customers():
         # Find the most sellable bond (lowest sellabilityRank or highest demandScore)
         most_sellable = min(bonds, key=lambda b: b.get('sellabilityRank', 999))
         
-        # Fetch all customers using list operation
-        from agents.customer_agent_local import list_customers
-        customers_result = list_customers()
-        
-        # Parse customer list (it comes as JSON string)
-        try:
-            customers = json.loads(customers_result)
-        except:
-            customers = []
+        # Fetch all customers from Lambda-backed customer agent
+        customers_result = invoke_lambda(LIST_CUSTOMERS_ARN, {}, tool_name='list_customers')
+        customers = customers_result.get('customers', []) if isinstance(customers_result, dict) else []
         
         result = {
             'mostSellableBond': most_sellable,

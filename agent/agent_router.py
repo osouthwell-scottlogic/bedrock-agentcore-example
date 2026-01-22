@@ -2,10 +2,10 @@
 from strands import Agent, tool
 from strands.models import BedrockModel
 import json
-from agents.customer_agent_local import list_customers, get_customer_profile
-from agents.product_agent_local import list_available_bonds, get_product_details, search_market_data
-from agents.marketing_agent_local import send_email, get_recent_emails
-from agents.recommendation_agent_local import get_bond_recommendations_for_customer, get_most_sellable_bond_with_customers
+from agents.customer_agent import list_customers, get_customer_profile
+from agents.product_agent import list_available_bonds, get_product_details, search_market_data
+from agents.marketing_agent import send_email, get_recent_emails
+from agents.recommendation_agent import get_bond_recommendations_for_customer, get_most_sellable_bond_with_customers
 
 
 class AgentRouter:

@@ -7,6 +7,7 @@ from agents.marketing_agent_local import create_marketing_agent
 from agents.suggestion_agent_local import create_suggestion_agent
 from agents.recommendation_agent_local import create_recommendation_agent
 from agent_router import create_agent_router
+from utils.id_sanitizer import sanitize_text_and_collect_metadata
 
 # Create the AgentCore app
 app = BedrockAgentCoreApp()
@@ -76,11 +77,20 @@ async def agent_invocation(payload):
 
     # Stream response from the agent router (coordinator)
     stream = agent_router.stream_async(user_input)
+    collected_metadata = {"previewIds": [], "customerIds": [], "requestIds": []}
+
     async for event in stream:
         if (event.get('event',{}).get('contentBlockDelta',{}).get('delta',{}).get('text')):
             text = event.get('event',{}).get('contentBlockDelta',{}).get('delta',{}).get('text')
-            print(text)
-            yield text
+            sanitized_text, meta = sanitize_text_and_collect_metadata(text)
+
+            for key in collected_metadata:
+                for value in meta.get(key, []):
+                    if value not in collected_metadata[key]:
+                        collected_metadata[key].append(value)
+
+            print(sanitized_text)
+            yield sanitized_text
 
 
 if __name__ == "__main__":

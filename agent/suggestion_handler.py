@@ -1,5 +1,6 @@
 """Suggestion prompt handler - bypasses multi-agent router for suggestion meta-prompts"""
 import re
+from utils.id_sanitizer import sanitize_text_and_collect_metadata
 
 
 def is_suggestion_prompt(prompt: str) -> bool:
@@ -33,5 +34,8 @@ def clean_suggestion_response(response: str) -> str:
     # Replace escaped newlines
     cleaned = cleaned.replace('\\n', '\n')
     cleaned = cleaned.replace('\\t', '\t')
+    
+    # Remove IDs from suggestion text
+    cleaned, _ = sanitize_text_and_collect_metadata(cleaned)
     
     return cleaned

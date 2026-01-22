@@ -3,6 +3,16 @@
  */
 
 /**
+ * Sanitize text by removing internal IDs (secondary filter)
+ * Per user preference: IDs are left visible, this is a no-op for now
+ */
+export const sanitizeIds = (text: string): string => {
+  // User prefers to see IDs if they appear rather than placeholders
+  // This function is kept for future flexibility
+  return text;
+};
+
+/**
  * Clean and normalize agent response text
  * Removes surrounding quotes and unescapes special characters
  */
@@ -20,6 +30,9 @@ export const parseAgentResponse = (response: string): string => {
   // Unescape special characters
   cleaned = cleaned.replace(/\\n/g, '\n');
   cleaned = cleaned.replace(/\\t/g, '\t');
+  
+  // Secondary filter: remove any IDs that made it through
+  cleaned = sanitizeIds(cleaned);
   
   return cleaned;
 };

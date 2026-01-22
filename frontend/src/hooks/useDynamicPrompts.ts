@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { invokeAgent } from '../agentcore';
-import { parseAgentResponse, extractJsonArray } from '../lib/responseParser';
+import { parseAgentResponse, extractJsonArray, sanitizeIds } from '../lib/responseParser';
 
 export interface Message {
   type: 'user' | 'agent';
@@ -49,6 +49,8 @@ Available capabilities:
 - send_email: Email qualified customers about bonds
 - get_recent_emails: View sent email history
 
+IMPORTANT: Do NOT include customer IDs (like CUST-001) or any internal identifiers in suggestions. Use customer names or generic references only.
+
 Respond ONLY with a JSON array of 4 short prompts (each 3-8 words), like:
 ["Show all available bonds", "View customer portfolios", "Email about Government Bond Y", "Check recent emails"]`;
 
@@ -65,10 +67,12 @@ Respond ONLY with a JSON array of 4 short prompts (each 3-8 words), like:
       const suggestions = extractJsonArray<string>(cleanedResponse);
       
       if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
-        const formattedPrompts = suggestions.slice(0, 4).map((text: string, idx: number) => ({
-          id: `initial-${idx}`,
-          text: text
-        }));
+        const formattedPrompts = suggestions
+          .slice(0, 4)
+          .map((text: string, idx: number) => ({
+            id: `initial-${idx}`,
+            text: sanitizeIds(text)
+          }));
         setDynamicPrompts(formattedPrompts);
       }
     } catch (err) {
@@ -84,22 +88,18 @@ Respond ONLY with a JSON array of 4 short prompts (each 3-8 words), like:
     setLoadingPrompts(true);
     
     try {
-      const recentMessages = conversationHistory.slice(-4);
+      const recentMessages = conversationHistory.slice(-6);
       
-      // Build a detailed conversation summary with FULL message content
-      const conversationSummary = recentMessages.map((m, idx) => {
-        const role = m.type === 'user' ? 'User' : 'Assistant';
-        const messageNumber = conversationHistory.length - (recentMessages.length - idx);
-        return `[Message ${messageNumber}] ${role}:\n${m.content}`;
-      }).join('\n\n');
+      // Convert conversation history to the format expected by the agent
+      const formattedConversationHistory = recentMessages.map(m => ({
+        role: m.type === 'user' ? 'user' as const : 'assistant' as const,
+        content: m.content
+      }));
 
       // Get the last assistant message to extract any entities mentioned
       const lastAssistantMessage = recentMessages.slice().reverse().find(m => m.type === 'agent');
       
-      const suggestionPrompt = `You are the Bank X Suggestion Agent. Analyze the conversation and suggest the most natural and helpful next actions.
-
-CONVERSATION CONTEXT:
-${conversationSummary}
+      const suggestionPrompt = `You are the Bank X Suggestion Agent. Analyze the recent conversation and suggest the most natural and helpful next actions.
 
 AVAILABLE CAPABILITIES:
 - list_available_bonds: Show all bond products
@@ -113,16 +113,12 @@ AVAILABLE CAPABILITIES:
 INSTRUCTIONS:
 1. Consider what the user just learned or accomplished
 2. Suggest logical next steps that build on the conversation
-3. If specific bonds, customers, or products were mentioned, reference them
-4. Mix different types of actions (view data, take action, research)
-5. Keep suggestions concise (3-10 words each)
+3. If customers were mentioned, use their FULL NAMES (e.g., "Get recommendations for Sarah Chen") - NEVER use customer IDs
+4. For generic suggestions about customers, use phrases like "Find suitable customers" or "View customer profiles" instead of referencing specific IDs
+5. Mix different types of actions (view data, take action, research)
+6. Keep suggestions concise (3-10 words each)
 
-${lastAssistantMessage ? `
-LAST RESPONSE ANALYSIS:
-The assistant just provided: ${lastAssistantMessage.content.substring(0, 300)}...
-
-Consider what specific entities (customer names, bond products, etc.) were mentioned that the user might want to follow up on.
-` : ''}
+CRITICAL: NEVER include customer IDs (CUST-001, CUST-002, etc.), preview IDs, or internal identifiers. Always use customer names when referring to specific people.
 
 Respond ONLY with a JSON array of 3-4 contextual prompts:
 ["Specific actionable prompt 1", "Related prompt 2", "Next logical step 3"]`;
@@ -131,6 +127,7 @@ Respond ONLY with a JSON array of 3-4 contextual prompts:
       
       await invokeAgent({
         prompt: suggestionPrompt,
+        conversationHistory: formattedConversationHistory,
         onChunk: (chunk: string) => {
           suggestionResponse += chunk;
         }
@@ -140,10 +137,12 @@ Respond ONLY with a JSON array of 3-4 contextual prompts:
       const suggestions = extractJsonArray<string>(cleanedResponse);
       
       if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
-        const formattedPrompts = suggestions.slice(0, 4).map((text: string, idx: number) => ({
-          id: `dynamic-${idx}-${Date.now()}`,
-          text: text
-        }));
+        const formattedPrompts = suggestions
+          .slice(0, 4)
+          .map((text: string, idx: number) => ({
+            id: `dynamic-${idx}-${Date.now()}`,
+            text: sanitizeIds(text)
+          }));
         setDynamicPrompts(formattedPrompts);
       } else {
         setDynamicPrompts([]);

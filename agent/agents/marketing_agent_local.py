@@ -42,18 +42,19 @@ def send_email(customer_email: str, subject: str, body: str, approved: bool = Fa
     # PREVIEW MODE: Generate and return preview
     if not approved:
         generated_preview_id = generate_preview_id(customer_email, subject, body)
-        return f"""EMAIL PREVIEW GENERATED (Preview ID: {generated_preview_id})
+        # Do not surface preview IDs in user-visible text; keep them only in metadata/backend state
+        return f"""EMAIL PREVIEW GENERATED
 
 To: {customer_email}
 Subject: {subject}
 
+--- EMAIL BODY START ---
+
 {body}
 
----
-PREVIEW ID: {generated_preview_id}
+--- EMAIL BODY END ---
 
-Please review this email carefully. To send, respond with "send" or "yes" to confirm.
-To cancel, respond with "no" or "cancel"."""
+Preview ID available in system metadata. Confirm sending? Reply yes/no."""
     
     # SEND MODE: Verify preview_id matches
     expected_preview_id = generate_preview_id(customer_email, subject, body)
@@ -161,15 +162,10 @@ Your responsibilities:
 - Ensure compliance with approval workflows
 
 CRITICAL EMAIL SENDING WORKFLOW (MANDATORY):
-You MUST follow this exact 4-stage process for every email:
+You MUST follow this exact 3-stage process for every email. Skip the summary step and start with the full draft when the user asks to create an email.
 
-**STAGE 1 - Summary for Approval**: Create a brief bullet-point summary of the email approach:
-   - Include key points, product highlights, personalization approach
-   - Ask: "Should I proceed with this email approach for [customer name]?"
-   - Wait for user approval ("yes", "proceed", etc.)
-
-**STAGE 2 - Draft Creation**: Once summary is approved, generate a COMPREHENSIVE, DETAILED email draft:
-   - Write full email (minimum 50-60 lines)
+**STAGE 1 - Draft Creation**: Immediately generate a COMPREHENSIVE, DETAILED email draft when asked to create an email:
+    - Write full email (minimum 20 lines, maximum 50 lines)
    - Use rich, engaging professional language
    - Include detailed product analysis with specific numbers and comparisons
    - Add market context and economic insights
@@ -182,19 +178,24 @@ You MUST follow this exact 4-stage process for every email:
    - Ask: "Should I send this email to [customer]?"
    - Wait for user approval
 
-**STAGE 3 - Preview Generation (NEW - MANDATORY)**: After draft approval:
-   - Call send_email(customer_email, subject, body) WITHOUT approved parameter (defaults to False)
-   - This returns an EMAIL PREVIEW with a PREVIEW_ID
-   - Display the preview and PREVIEW_ID to the user
-   - Ask: "Do you confirm sending this email? (yes/no)"
-   - Wait for user confirmation
-   - SAVE the preview_id from this response - you will need it for Stage 4
+**STAGE 2 - Preview Generation (MANDATORY)**: After draft approval:
+    - Call send_email(customer_email, subject, body) WITHOUT approved parameter (defaults to False)
+    - This returns an EMAIL PREVIEW with a PREVIEW_ID
+    - Do NOT rewrite or restate the full draft. Show a concise confirmation that uses the existing draft: include recipient, subject, preview_id, and note that the body is unchanged from the draft. Only re-display the full body if the user explicitly asks to see it again.
+    - Ask: "Do you confirm sending this email? (yes/no)"
+    - Wait for user confirmation
+    - SAVE the preview_id from this response - you will need it for Stage 3
 
-**STAGE 4 - Send Email**: Only after user confirms the preview:
-   - Call send_email(customer_email, subject, body, approved=True, preview_id="<ID from Stage 3>")
+**STAGE 3 - Send Email**: Only after user confirms the preview:
+    - Call send_email(customer_email, subject, body, approved=True, preview_id="<ID from Stage 2>")
    - The email content MUST be identical to the preview (same customer_email, subject, body)
    - If content changed, you must go back to Stage 3 to generate a new preview
    - Provide confirmation when sent
+
+Stage Advancement Rules (prevent re-drafting loops):
+- After showing the draft, if the user says any approval intent ("yes", "send", "approve", "go ahead", "continue", "looks good"), DO NOT write another draft. Immediately proceed to Stage 2 by calling send_email(customer_email, subject, body) with approved=False to generate the preview.
+- Only create a new draft if the user explicitly asks for changes or revisions (keywords like "edit", "change", "revise", "rewrite").
+- When showing the preview, surface the preview_id and ask for confirmation. If the user confirms ("yes", "send", "approve"), call send_email with approved=True and the SAME subject/body plus the preview_id. Do not regenerate the draft or preview unless the content changed.
 
 Email Structure Template:
 1. Personalized greeting addressing customer by name
@@ -213,7 +214,7 @@ Email Structure Template:
 Additional capabilities:
 - get_recent_emails(limit): Show recently sent email metadata
 
-CRITICAL: You MUST complete all 4 stages. NEVER skip the preview stage (Stage 3). NEVER send emails without showing the preview and getting confirmation. The preview_id verification ensures the email wasn't modified after user approval.""",
+CRITICAL: You MUST complete all 3 stages. NEVER skip the preview stage (Stage 2). NEVER send emails without showing the preview and getting confirmation. The preview_id verification ensures the email wasn't modified after user approval.""",
         callback_handler=None
     )
 

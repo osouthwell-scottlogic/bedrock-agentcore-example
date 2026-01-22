@@ -3,6 +3,8 @@ import json
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from agents import create_customer_agent, create_product_agent, create_marketing_agent, create_suggestion_agent, create_recommendation_agent
 from agent_router import create_agent_router
+from suggestion_handler import is_suggestion_prompt, clean_suggestion_response
+from utils.id_sanitizer import sanitize_text_and_collect_metadata
 
 # Create the AgentCore app
 app = BedrockAgentCoreApp()
@@ -16,6 +18,27 @@ recommendation_agent = create_recommendation_agent()
 
 # Create the agent router that orchestrates the specialized agents
 agent_router = create_agent_router(customer_agent, product_agent, marketing_agent, suggestion_agent, recommendation_agent)
+
+
+def extract_text_response(response):
+    """Safely extract text from agent response, handling various response formats."""
+    try:
+        if isinstance(response, str):
+            return response
+
+        if isinstance(response, dict):
+            if 'message' in response:
+                content = response['message'].get('content', [])
+                if isinstance(content, list) and len(content) > 0:
+                    return content[0].get('text', str(response))
+            if 'text' in response:
+                return response['text']
+            if 'response' in response:
+                return response['response']
+
+        return str(response)
+    except Exception:
+        return str(response)
 
 
 
@@ -65,13 +88,32 @@ async def agent_invocation(payload):
     # Prepend conversation context to the user input for the agent
     enriched_input = context_str + user_input if context_str else user_input
 
+    # Short-circuit suggestion prompts to the suggestion agent instead of the router
+    if is_suggestion_prompt(user_input):
+        response = suggestion_agent(enriched_input)
+        text = extract_text_response(response)
+        cleaned = clean_suggestion_response(text)
+        sanitized_text, _ = sanitize_text_and_collect_metadata(cleaned)
+        yield sanitized_text
+        return
+
     # Stream response from the agent router (coordinator)
     stream = agent_router.stream_async(enriched_input)
+    collected_metadata = {"previewIds": [], "customerIds": [], "requestIds": []}
+
     async for event in stream:
         if (event.get('event',{}).get('contentBlockDelta',{}).get('delta',{}).get('text')):
             text = event.get('event',{}).get('contentBlockDelta',{}).get('delta',{}).get('text')
-            print(text)
-            yield text
+            sanitized_text, meta = sanitize_text_and_collect_metadata(text)
+
+            # Merge metadata incrementally without duplicating values
+            for key in collected_metadata:
+                for value in meta.get(key, []):
+                    if value not in collected_metadata[key]:
+                        collected_metadata[key].append(value)
+
+            print(sanitized_text)
+            yield sanitized_text
 
 
 if __name__ == "__main__":

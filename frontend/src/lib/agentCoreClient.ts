@@ -28,11 +28,16 @@ export const parseAgentCoreStream = async (
 
       const chunk = decoder.decode(value, { stream: true });
       buffer += chunk;
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
+      // Events are separated by blank lines in SSE
+      const events = buffer.split('\n\n');
+      buffer = events.pop() || '';
+
+      for (const event of events) {
+        if (!event.trim()) continue;
+        const lines = event.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
           const data = line.slice(6);
           try {
             const parsed = JSON.parse(data);
