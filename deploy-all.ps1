@@ -338,8 +338,17 @@ Write-Host "      Build project: $buildProjectName" -ForegroundColor Gray
 $zipPath = Join-Path $PWD "agent-source.zip"
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 Write-Host "      Packaging agent source..." -ForegroundColor Gray
-# Use working tree so local (uncommitted) changes are packaged
-Compress-Archive -Path "agent" -DestinationPath $zipPath -Force
+
+$archiveSucceeded = $false
+try {
+    git -C $PWD archive --prefix=agent/ -o $zipPath HEAD:agent 2>$null
+    if ($LASTEXITCODE -eq 0 -and (Test-Path $zipPath)) { $archiveSucceeded = $true }
+} catch {}
+
+if (-not $archiveSucceeded) {
+    Write-Host "      git archive failed; falling back to Compress-Archive" -ForegroundColor Yellow
+    Compress-Archive -Path "agent" -DestinationPath $zipPath -Force
+}
 
 if (-not (Test-Path $zipPath)) {
     Write-Host "      [ERROR] Failed to create agent-source.zip" -ForegroundColor Red
