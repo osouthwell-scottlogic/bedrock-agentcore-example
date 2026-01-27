@@ -70,7 +70,7 @@ apiGatewayStack.addDependency(runtimeStack);
 apiGatewayStack.addDependency(authStack);
 
 // Frontend stack (depends on auth stack and API Gateway)
-const frontendStack = new FrontendStack(app, 'AgentCoreFrontend', {
+const frontendStack = new FrontendStack(app, 'AgentCoreFrontendV2', {
   env,
   userPoolId: authStack.userPool.userPoolId,
   userPoolClientId: authStack.userPoolClient.userPoolClientId,

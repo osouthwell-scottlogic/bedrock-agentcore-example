@@ -119,6 +119,7 @@ export class McpStack extends cdk.Stack {
       }),
       environment: {
         READ_FILE_FUNCTION_ARN: this.readFileFunction.functionArn,
+        LIST_FILES_FUNCTION_ARN: this.listFilesFunction.functionArn,
         LOG_LEVEL: 'INFO',
       },
     });
@@ -214,14 +215,19 @@ export class McpStack extends cdk.Stack {
     });
 
     // Grant permissions
-    this.readFileFunction.grantInvoke(this.listBondsFunction);
-    this.readFileFunction.grantInvoke(this.listCustomersFunction);
-    this.readFileFunction.grantInvoke(this.getCustomerFunction);
-    this.readFileFunction.grantInvoke(this.getProductFunction);
-    
-    // Grant list-bonds permission to invoke list-files and read-file
+    // Allow list-bonds to invoke list-files and read-file
     this.listFilesFunction.grantInvoke(this.listBondsFunction);
     this.readFileFunction.grantInvoke(this.listBondsFunction);
+    
+    // Allow list-customers to invoke list-files and read-file
+    this.listFilesFunction.grantInvoke(this.listCustomersFunction);
+    this.readFileFunction.grantInvoke(this.listCustomersFunction);
+    
+    // Allow get-customer to invoke read-file
+    this.readFileFunction.grantInvoke(this.getCustomerFunction);
+    
+    // Allow get-product to invoke read-file
+    this.readFileFunction.grantInvoke(this.getProductFunction);
     
     this.clientDetailsBucket.grantRead(this.searchMarketFunction, 'client-details/market-data/*');
     this.clientDetailsBucket.grantWrite(this.sendEmailFunction, 'sent-emails/*');

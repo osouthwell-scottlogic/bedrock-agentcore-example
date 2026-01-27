@@ -461,7 +461,7 @@ if ($LASTEXITCODE -ne 0) {
 # Deploy frontend stack
 Push-Location cdk
 $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-npx cdk deploy AgentCoreFrontend --output "cdk.out.$timestamp" --no-cli-pager --require-approval never
+npx cdk deploy AgentCoreFrontendV2 --output "cdk.out.$timestamp" --no-cli-pager --require-approval never
 Pop-Location
 
 if ($LASTEXITCODE -ne 0) {
@@ -470,7 +470,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Get CloudFront URL
-$websiteUrl = aws cloudformation describe-stacks --stack-name AgentCoreFrontend --query "Stacks[0].Outputs[?OutputKey=='WebsiteUrl'].OutputValue" --output text --no-cli-pager
+$websiteUrl = aws cloudformation describe-stacks --stack-name AgentCoreFrontendV2 --query "Stacks[0].Outputs[?OutputKey=='WebsiteUrl'].OutputValue" --output text --no-cli-pager
 
 Write-Host "`n=== Deployment Complete ===" -ForegroundColor Green
 Write-Host "Website URL: $websiteUrl" -ForegroundColor Cyan

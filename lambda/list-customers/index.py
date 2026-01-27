@@ -9,6 +9,7 @@ logger = logging.getLogger()
 logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 
 READ_FILE_FUNCTION_ARN = os.environ.get('READ_FILE_FUNCTION_ARN', '')
+LIST_FILES_FUNCTION_ARN = os.environ.get('LIST_FILES_FUNCTION_ARN', '')
 
 boto_config = Config(
     retries={'max_attempts': 3, 'mode': 'adaptive'},
@@ -42,12 +43,19 @@ def lambda_handler(event, context):
             'details': {},
         })
 
+    if not LIST_FILES_FUNCTION_ARN:
+        return build_response(500, request_id, {
+            'errorCode': 'CONFIG_ERROR',
+            'message': 'LIST_FILES_FUNCTION_ARN is not configured',
+            'details': {},
+        })
+
     try:
         lambda_client = boto3.client('lambda', config=boto_config)
         
         # Dynamically discover customer files
         list_response = lambda_client.invoke(
-            FunctionName=READ_FILE_FUNCTION_ARN.replace('read-file', 'list-files'),
+            FunctionName=LIST_FILES_FUNCTION_ARN,
             InvocationType='RequestResponse',
             Payload=json.dumps({'filename': 'customers'})
         )

@@ -90,8 +90,10 @@ def send_email(customer_email: str, subject: str, body: str, approved: bool = Fa
     # If preview mode (status=PREVIEW), return structured preview for agent to show user
     if result.get('status') == 'PREVIEW':
         preview_data = result.get('email_preview', {})
-        # Do not surface preview IDs in user-visible text; keep them in backend metadata only
+        preview_id = result.get('preview_id', '')
+        # Return preview with preview_id explicitly for the agent to use in the follow-up call
         return f"""EMAIL PREVIEW GENERATED
+Preview ID: {preview_id}
 
 To: {preview_data.get('to', '')}
 Subject: {preview_data.get('subject', '')}
@@ -99,7 +101,7 @@ Subject: {preview_data.get('subject', '')}
 {preview_data.get('body', '')}
 
 ---
-Preview ID available in system metadata. Confirm sending? Reply yes/no."""
+Confirm sending this email? Please reply 'yes' or 'no'."""
     
     # Approved mode - email sent
     return result.get('message', 'Email sent successfully')
@@ -140,40 +142,36 @@ Your responsibilities:
 - Ensure compliance with approval workflows
 
 CRITICAL EMAIL SENDING WORKFLOW (MANDATORY):
-You MUST follow this exact 3-stage process for every email. Skip the summary step and start with the full draft when the user asks to create an email.
+You MUST follow this exact 2-stage process for every email.
 
-**STAGE 1 - Draft Creation**: Immediately generate a COMPREHENSIVE, DETAILED email draft when asked to create an email:
+**STAGE 1 - Draft Creation & Preview**: Immediately generate a COMPREHENSIVE, DETAILED email and get preview:
     - Write full email (minimum 20 lines, maximum 50 lines)
-   - Use rich, engaging professional language
-   - Include detailed product analysis with specific numbers and comparisons
-   - Add market context and economic insights
-   - Provide thorough risk/benefit analysis
-   - Include multiple sections with clear headers
-   - Add specific examples and use cases
-   - Personalize based on customer profile (portfolio size, interests, risk tolerance)
-   - Include detailed call-to-action with next steps
-   - Show complete draft to user
-   - Ask: "Should I send this email to [customer]?"
-   - Wait for user approval
+    - Use rich, engaging professional language
+    - Include detailed product analysis with specific numbers and comparisons
+    - Add market context and economic insights
+    - Provide thorough risk/benefit analysis
+    - Include multiple sections with clear headers
+    - Add specific examples and use cases
+    - Personalize based on customer profile (portfolio size, interests, risk tolerance)
+    - Include detailed call-to-action with next steps
+    - Show complete draft to user
+    - Ask: "Should I send this email to [customer]?"
+    - Once user approves ("yes", "send", "approve", "go ahead", "continue", "looks good"):
+      - Immediately call send_email(customer_email, subject, body) WITHOUT approved parameter (defaults to False)
+      - This returns an EMAIL PREVIEW with PREVIEW_ID clearly shown
+      - Display the preview to user with the preview_id and ask: "Do you confirm sending this email? (yes/no)"
+      - SAVE the preview_id from the response
 
-**STAGE 2 - Preview Generation (MANDATORY)**: After draft approval:
-    - Call send_email(customer_email, subject, body) WITHOUT approved parameter (defaults to False)
-    - This returns an EMAIL PREVIEW with a PREVIEW_ID
-    - Do NOT rewrite or restate the full draft. Show a concise confirmation that uses the existing draft: include recipient, subject, preview_id, and note that the body is unchanged from the draft. Only re-display the full body if the user explicitly asks to see it again.
-    - Ask: "Do you confirm sending this email? (yes/no)"
-    - Wait for user confirmation
-    - SAVE the preview_id from this response - you will need it for Stage 3
-
-**STAGE 3 - Send Email**: Only after user confirms the preview:
-    - Call send_email(customer_email, subject, body, approved=True, preview_id="<ID from Stage 2>")
-   - The email content MUST be identical to the preview (same customer_email, subject, body)
-   - If content changed, you must go back to Stage 3 to generate a new preview
-   - Provide confirmation when sent
+**STAGE 2 - Send Email**: Only after user confirms the preview:
+    - Call send_email(customer_email, subject, body, approved=True, preview_id="<ID from Stage 1>")
+    - The email content MUST be identical to the preview (same customer_email, subject, body)
+    - If content changed, you must go back to Stage 1 to generate a new preview
+    - Provide confirmation when sent
 
 Stage Advancement Rules (prevent re-drafting loops):
-- After showing the draft, if the user says any approval intent ("yes", "send", "approve", "go ahead", "continue", "looks good"), DO NOT write another draft. Immediately proceed to Stage 2 by calling send_email(customer_email, subject, body) with approved=False to generate the preview.
+- After showing the draft, if the user approves, DO NOT ask again. Immediately proceed to get the preview by calling send_email with approved=False.
 - Only create a new draft if the user explicitly asks for changes or revisions (keywords like "edit", "change", "revise", "rewrite").
-- When showing the preview, surface the preview_id and ask for confirmation. If the user confirms ("yes", "send", "approve"), call send_email with approved=True and the SAME subject/body plus the preview_id. Do not regenerate the draft or preview unless the content changed.
+- When showing the preview, surface the preview_id and ask for confirmation. If the user confirms, call send_email with approved=True and the same subject/body plus the preview_id. Do not regenerate the draft or preview unless the content changed.
 
 Email Structure Template:
 1. Personalized greeting addressing customer by name
@@ -192,7 +190,7 @@ Email Structure Template:
 Additional capabilities:
 - get_recent_emails(limit): Show recently sent email metadata
 
-CRITICAL: You MUST complete all 3 stages. NEVER skip the preview stage (Stage 2). NEVER send emails without showing the preview and getting confirmation. The preview_id verification ensures the email wasn't modified after user approval.""",
+CRITICAL: You MUST complete both stages. NEVER skip the preview stage. NEVER send emails without showing the preview and getting confirmation. The preview_id verification ensures the email wasn't modified after user approval.""",
         callback_handler=None
     )
 

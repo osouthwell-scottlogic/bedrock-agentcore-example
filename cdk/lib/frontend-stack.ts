@@ -61,12 +61,16 @@ export class FrontendStack extends cdk.Stack {
       })
     );
 
-    new s3deploy.BucketDeployment(this, 'DeployWebsite', {
+    const deployWebsite = new s3deploy.BucketDeployment(this, 'DeployWebsite', {
       sources: [s3deploy.Source.asset('../frontend/dist')],
       destinationBucket: websiteBucket,
       distribution,
       distributionPaths: ['/*'],
     });
+
+    // Ensure the custom resource deletes before the distribution to avoid DELETE_FAILED
+    // This enforces reverse deletion order so invalidation runs while distribution exists
+    deployWebsite.node.addDependency(distribution);
 
     this.distributionUrl = `https://${distribution.distributionDomainName}`;
 
